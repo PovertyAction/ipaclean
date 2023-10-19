@@ -1,0 +1,19 @@
+ct2a,ct2b,ct2c,ct2d,ct2e,PARENT_KEY,KEY,SET-OF-ct2_grp
+Maame Mansa,Anhwiam,2,34,At home,uuid:db6538a6-36ff-4eda-8f73-4b7af977f740,uuid:db6538a6-36ff-4eda-8f73-4b7af977f740/ct2_grp[1],uuid:db6538a6-36ff-4eda-8f73-4b7af977f740/ct2_grp
+Head Teacher of Ahwiam,Ahwiam,1,45,Head Teacher of both Primary and Senior High School,uuid:5fe21c1e-3585-45e2-8459-7be956e82609,uuid:5fe21c1e-3585-45e2-8459-7be956e82609/ct2_grp[1],uuid:5fe21c1e-3585-45e2-8459-7be956e82609/ct2_grp
+Adumanu assistant head teacher,Adumanu,1,50,Met at the office of the school as we administered arrival survey and self introductions,uuid:5fe21c1e-3585-45e2-8459-7be956e82609,uuid:5fe21c1e-3585-45e2-8459-7be956e82609/ct2_grp[2],uuid:5fe21c1e-3585-45e2-8459-7be956e82609/ct2_grp
+Adumanu D/A headmaster,Adumanu,1,42,Slim and fair,uuid:911745c6-e863-4026-bad2-68efe95d2b86,uuid:911745c6-e863-4026-bad2-68efe95d2b86/ct2_grp[1],uuid:911745c6-e863-4026-bad2-68efe95d2b86/ct2_grp
+Auntie Stella,Awumamso,2,55,In her house,uuid:aad03173-e009-416e-a4f7-7fc64e68e909,uuid:aad03173-e009-416e-a4f7-7fc64e68e909/ct2_grp[1],uuid:aad03173-e009-416e-a4f7-7fc64e68e909/ct2_grp
+Patrick Clement,Nwomaso Methodist JHS,1,38,In the school,uuid:aad03173-e009-416e-a4f7-7fc64e68e909,uuid:aad03173-e009-416e-a4f7-7fc64e68e909/ct2_grp[2],uuid:aad03173-e009-416e-a4f7-7fc64e68e909/ct2_grp
+Ante Mary,"Adjacent the Community Borehole, Anwhiam",2,47,While Tracking STAR student,uuid:a6d5996c-67d0-4fa1-82a7-e6dd6c0b6ce2,uuid:a6d5996c-67d0-4fa1-82a7-e6dd6c0b6ce2/ct2_grp[1],uuid:a6d5996c-67d0-4fa1-82a7-e6dd6c0b6ce2/ct2_grp
+Zakaria Yakubu,Close to the Masalachi,1,40,Uncle of Alhassan Yakubu that has travelled to Huni Valley,uuid:a6d5996c-67d0-4fa1-82a7-e6dd6c0b6ce2,uuid:a6d5996c-67d0-4fa1-82a7-e6dd6c0b6ce2/ct2_grp[2],uuid:a6d5996c-67d0-4fa1-82a7-e6dd6c0b6ce2/ct2_grp
+Prince Okyere,Efofosu,1,20,House,uuid:519a80bc-998c-4147-be27-d9157af474f3,uuid:519a80bc-998c-4147-be27-d9157af474f3/ct2_grp[1],uuid:519a80bc-998c-4147-be27-d9157af474f3/ct2_grp
+Abena Dadzie,Village,2,50,Village,uuid:9fd11d99-6335-4198-8c5a-330d84bcc9cc,uuid:9fd11d99-6335-4198-8c5a-330d84bcc9cc/ct2_grp[1],uuid:9fd11d99-6335-4198-8c5a-330d84bcc9cc/ct2_grp
+Ama,School,2,40,Farm land,uuid:9fd11d99-6335-4198-8c5a-330d84bcc9cc,uuid:9fd11d99-6335-4198-8c5a-330d84bcc9cc/ct2_grp[2],uuid:9fd11d99-6335-4198-8c5a-330d84bcc9cc/ct2_grp
+Kwasi David,Adandan,1,54,In the house,uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8,uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8/ct2_grp[1],uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8/ct2_grp
+Yaw Mensah,Adandan,1,39,In the house,uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8,uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8/ct2_grp[2],uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8/ct2_grp
+Cudjoe,Adandan,1,34,In the house,uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8,uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8/ct2_grp[3],uuid:1521c03b-51de-4b21-9e0d-518bdcb17ff8/ct2_grp
+Angelina Father,Adandan Nsuoakyi,1,50,Close to a cocoa farm,uuid:9884f6ee-0b04-4494-b328-9bd5c893dc57,uuid:9884f6ee-0b04-4494-b328-9bd5c893dc57/ct2_grp[1],uuid:9884f6ee-0b04-4494-b328-9bd5c893dc57/ct2_grp
+Uncle of Donkor,Bus stop Adandan,1,35,Operates fufu pounding machine,uuid:9884f6ee-0b04-4494-b328-9bd5c893dc57,uuid:9884f6ee-0b04-4494-b328-9bd5c893dc57/ct2_grp[2],uuid:9884f6ee-0b04-4494-b328-9bd5c893dc57/ct2_grp
+Afa yahaya,Salifu yili,1,46,Community member,uuid:a54a82cf-10b4-4b0b-b035-f04edb3f942a,uuid:a54a82cf-10b4-4b0b-b035-f04edb3f942a/ct2_grp[1],uuid:a54a82cf-10b4-4b0b-b035-f04edb3f942a/ct2_grp
+Prisons Officer Cobinnah,Abee Prisons Office,1,55,Had to contact him while Tracking Segbefia,uuid:f00db3ef-7dd4-453e-9e68-2bb6cf1e8186,uuid:f00db3ef-7dd4-453e-9e68-2bb6cf1e8186/ct2_grp[1],uuid:f00db3ef-7dd4-453e-9e68-2bb6cf1e8186/ct2_grp
