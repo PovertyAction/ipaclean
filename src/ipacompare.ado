@@ -134,7 +134,7 @@ program define ipacompare, rclass
 			
 			* Variables Frame
 			
-			frame create frm_vars
+			frame create frm_vars str32 varname
 			
 		* Loop through datasets and create information needed
 		
@@ -203,6 +203,11 @@ program define ipacompare, rclass
 					gen vall`sr' = ""
 					gen misn`sr' = .
 					gen unqn`sr' = .
+					
+					lab var varl`sr' "label"
+					lab var vall`sr' "value label"
+					lab var misn`sr' "# miss"
+					lab var unqn`sr' "# uniq"
 				}
 				
 				foreach var of varlist _all {
@@ -217,16 +222,17 @@ program define ipacompare, rclass
 					loc uniqcnt = `r(r)'
 					
 					frame frm_vars {
-						count if variable == "`var'"
+
+						count if varname == "`var'"
 						if `r(N)' == 0 {
-							set obs `=_N' + 1
-							replace variable = "`var'" in `=_N'
-							
-							replace varl`sr' = "`varlab'"	if variable == "`var'"
-							replace vall`sr' = "`vallab'"	if variable == "`var'"
-							replace misn`sr' = `misscnt'	if variable == "`var'"
-							replace unqn`sr' = `uniqcnt'	if variable == "`var'"
+							set obs `=`=_N' + 1'
+							replace varname = "`var'" in `=_N'
 						}
+						
+						replace varl`sr' = "`varlab'"	if varname == "`var'"
+						replace vall`sr' = "`vallab'"	if varname == "`var'"
+						replace misn`sr' = `misscnt'	if varname == "`var'"
+						replace unqn`sr' = `uniqcnt'	if varname == "`var'"
 					}
 					
 				}
@@ -257,9 +263,25 @@ program define ipacompare, rclass
 			
 			export excel using "`outfile'", sheet("summary") replace first(varl)
 			
+			mata: setheader("`outfile'", "summary")
+			mata: colwidths("`outfile'", "summary")
+			mata: colformats("`outfile'", "summary", ("round", "vars", "vars_nomiss", "vars_allmiss", "obs", "miss"), "number_sep")
+			if `_cons' mata: colformats("`outfile'", "summary", ("consent"), "number_sep")
+			if `_outc' mata: colformats("`outfile'", "summary", ("complete"), "number_sep")
+			mata: colformats("`outfile'", "summary", ("firstdate", "lastdate"), "date_d_mon_yy")
 		}
 		
-		frame drop frm_summ
+		* export variables sheet 
+		frame frm_vars {
+			export excel using "`outfile'", sheet("variables") first(varl) cell(A2)
+		
+			mata: colwidths("`outfile'", "variables")
+			
+			tokenlist _all, type(numeric)
+			xxx
+		} 
+	
+		frame drop frm_summ frm_vars
 		
 		* -----------------------
 		* Create tracking Sheet
@@ -280,6 +302,8 @@ program define ipacompare, rclass
 			keep `id' `date' `consent_var' `outcome_var'
 			
 			order `id' `date' `outcome_var' `consent_var'
+			
+			ipagettd `date'
 		
 			ren `date' date`sr'
 			lab var date`sr' "`date'"
@@ -322,7 +346,7 @@ program define ipacompare, rclass
 			order outcome_n, before(date1)
 		}
 		
-		export excel using "`outfile'", sheet("tracking") replace first(varl) cell(A2)
+		export excel using "`outfile'", sheet("tracking") first(varl) cell(A2)
 		
 	*}
 
@@ -366,4 +390,22 @@ program define misscount, rclass
 	return local nomiss = `nomiss'
 	return local allmiss = `allmiss'
 	
+end
+
+* create tokenlist of vars
+program define tokenlist, rclass
+
+	syntax varlist , type(string)
+	
+	ds, has(type `type')
+	loc vars "`r(varlist)'"
+	
+	loc varlist: list varlist & vars
+	set trace on
+	foreach var of varlist `varlist' {
+		loc tlist = cond(missing("`tlist'"), `"`var'"', `"`tlist'", "`var'"')
+	}
+	
+	return local tlist `tlist'
+
 end
