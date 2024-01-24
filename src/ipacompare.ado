@@ -1,4 +1,4 @@
-*! version 0.0.0 03oct2023
+*! version 0.0.1 18jan2024
 *! Innovations for Poverty Action
 
 program define ipacompare, rclass
@@ -28,7 +28,7 @@ program define ipacompare, rclass
 
 	version 17	
 	
-	* qui {
+	qui {
 
 		* preserve
 		
@@ -146,11 +146,10 @@ program define ipacompare, rclass
 				
 				gettoken filename`sr' desc : s`sr', p(,)
 				loc filename`sr' = trim("`filename`sr''")
-				loc desc 	 = trim(itrim(subinstr("`desc'", ",", "", 1)))
-				
+				loc desc`sr' 	 = trim(itrim(subinstr("`desc'", ",", "", 1)))
 			}
 			
-			else {
+			if `sr' > 0 {
 				
 				importfile using "`filename`sr''"
 				
@@ -178,7 +177,7 @@ program define ipacompare, rclass
 				
 				frame frm_summ {
 					replace round 		  = `sr' 	 				in `i'
-					replace desc  		  = "`desc'" 				in `i'
+					replace desc  		  = "`desc`sr''" 			in `i'
 					replace vars  		  = `vars' 	 				in `i'
 					replace vars_nomiss   = `nomiss'      			in `i'
 					replace vars_allmiss  = `allmiss'     			in `i'
@@ -273,14 +272,29 @@ program define ipacompare, rclass
 		
 		* export variables sheet 
 		frame frm_vars {
+			
 			export excel using "`outfile'", sheet("variables") first(varl) cell(A2)
 		
 			mata: colwidths("`outfile'", "variables")
 			
-			tokenlist _all, type(numeric)
-			xxx
+			loc vars = ""
+			foreach var of varlist misn* unqn* {
+				if missing(`"`vars'"') loc vars = char(34)  + "`var'" + char(34)
+				else loc vars = `"`vars'"' + "," + char(34)  + "`var'" + char(34)
+			}
+			
+			mata: colformats("`outfile'", "variables", (`vars'), "number_sep")
+			
+			loc headers = ""
+			foreach sr of numlist `srs' {
+				if missing(`"`headers'"') loc headers = char(34)  + "`desc`sr''" + char(34)
+				else loc headers = `"`headers'"' + "," + char(34)  + "`desc`sr''" + char(34) 
+			}
+			
+			mata: format_ipc_variables("`outfile'", "variables", (`headers'))
+			
 		} 
-	
+
 		frame drop frm_summ frm_vars
 		
 		* -----------------------
@@ -347,8 +361,21 @@ program define ipacompare, rclass
 		}
 		
 		export excel using "`outfile'", sheet("tracking") first(varl) cell(A2)
+		mata: colwidths("`outfile'", "tracking")
 		
-	*}
+		loc vars = ""
+		ds, has(format %td)
+		foreach var of varlist `r(varlist)' {
+			if missing(`"`vars'"') loc vars = char(34)  + "`var'" + char(34)
+			else loc vars = `"`vars'"' + "," + char(34)  + "`var'" + char(34)
+		}
+		
+		mata: colformats("`outfile'", "tracking", (`vars'), "date_d_mon_yy")
+		
+		mata: st_local("n", strofreal(st_varindex("date1")))
+		noi mata: format_ipc_tracking("`outfile'", "tracking", (`headers'), `n', `=`_cons' + `_outc'')
+
+	}
 
 end
 
@@ -392,20 +419,72 @@ program define misscount, rclass
 	
 end
 
-* create tokenlist of vars
-program define tokenlist, rclass
+* mata program for formatting variables column
+mata:
+mata clear
 
-	syntax varlist , type(string)
+void format_ipc_variables (string scalar file, string scalar sheet, string vector headers)
+
+{
+	real scalar i
+	class xl scalar b
+	b = xl()
+	b.load_book(file)
+	b.set_sheet(sheet)
+	b.set_mode("open")
 	
-	ds, has(type `type')
-	loc vars "`r(varlist)'"
+	real scalar n
 	
-	loc varlist: list varlist & vars
-	set trace on
-	foreach var of varlist `varlist' {
-		loc tlist = cond(missing("`tlist'"), `"`var'"', `"`tlist'", "`var'"')
+	b.set_font_bold((1, 2), (1, st_nvar()), "on")
+	b.set_font_italic((1, 2), (1, st_nvar()), "on")
+	b.set_bottom_border((2, 2), (1, st_nvar()), "medium")
+	b.set_left_border((1, st_nobs() + 2), (2, 2), "thin")
+	
+	n = 2
+	
+	for (i = 1; i <= length(headers); i++) {
+		
+		startcol = n
+		
+		b.put_string(1, n, headers[i])
+		
+		b.set_sheet_merge(sheet, (1, 1), (n, n + 3))
+		b.set_horizontal_align((1, 1), (n, n + 4), "center")
+		
+		b.set_left_border((1, st_nobs() + 2), (n + 4, n + 4), "thin")
+		
+		n = n + 4
 	}
 	
-	return local tlist `tlist'
+	b.close_book()
+}
+
+void format_ipc_tracking (string scalar file, string scalar sheet, string vector headers, real scalar n, real scalar adj)
+
+{
+	real scalar i
+	class xl scalar b
+	b = xl()
+	b.load_book(file)
+	b.set_sheet(sheet)
+	b.set_mode("open")
+	
+	b.set_font_bold((1, 2), (1, st_nvar()), "on")
+	b.set_font_italic((1, 2), (1, st_nvar()), "on")
+	b.set_bottom_border((2, 2), (1, st_nvar()), "medium")
+	b.set_left_border((1, st_nobs() + 2), (2, 2), "thin")
+	
+	for (i = 1; i <= length(headers); i++) {
+	
+		b.put_string(1, n, headers[i])
+		b.set_sheet_merge(sheet, (1, 1), (n, n + adj))
+		b.set_horizontal_align((1, 1), (n, n + adj), "center")
+		b.set_left_border((1, st_nobs() + 2), (n, n), "thin")
+		n = n + adj + 1
+	}
+	
+	b.close_book()
+}
 
 end
+

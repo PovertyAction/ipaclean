@@ -1,4 +1,4 @@
-*! version 0.0.0 11oct2023
+*! version 0.0.1 16jan2023
 *! Innovations for Poverty Action
 * ipaodkmergerepeats: Reshape & Merge data from ODK style repeat groups
 
@@ -6,7 +6,7 @@ program define ipaodkmergerepeats, rclass
 	
 	version 13
 
-	syntax using/, [saving(string) FOLDer(string)]
+	syntax using/[, saving(string) FOLDer(string)]
 	
 	tempfile tmf_master
 	
