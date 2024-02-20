@@ -9,7 +9,7 @@ version 17
 		syntax anything(everything) [, 
 			OUTFile(string)
 			DETails
-			FORMATinput(string)
+			USEMASTERtype
 			GENerate(name)
 			KEEPUsing(namelist)
 			NOGENerate
