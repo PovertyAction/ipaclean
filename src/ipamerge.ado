@@ -44,10 +44,9 @@ version 17
 			
 			* check the merging type
 			gettoken mtype anything: anything
-			cap assert regexm("`mtype'", "^(1|m):(?:1|m)$")
-			if _rc == 9 {
+			if !regexm("`mtype'", "^(1|m):(?:1|m)$") {
 				di as err "ipamerge `mtype' is an invalid merge type"
-				di as err "    merge types are 1:1, 1:m, m:1, or m:m"
+				di as err _col(10) "merge types are 1:1, 1:m, m:1, or m:m"
 				ex 198
 			}
 			
@@ -55,6 +54,8 @@ version 17
 			loc varlist = substr(`"`anything'"', 1, strpos(`"`anything'"', "using") - 1)
 			unab varlist: `varlist'
 			
+<<<<<<< HEAD
+=======
 			* check safely and report
 			if !missing("`report'") & !missing("`safely'") {
 				di as err "report and safely cannot be combined together "
@@ -76,10 +77,11 @@ version 17
 				di as err "syntax error: cannot apply both generate() and nogenrate options together"
 				ex 198
 			}
+>>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
 			* get list of datasets
 			loc anything = substr(`"`anything'"', strpos(`"`anything'"', "using") + 5, .)
 			loc using_cnt: word count `anything'
-
+			
 			forval i = 0/`using_cnt' {
 				
 				if `i' == 0 {
@@ -114,7 +116,11 @@ version 17
 							gen using`i'_tail = ""
 						}
 					}
+<<<<<<< HEAD
+				}	
+=======
 				}
+>>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
 				
 				ds
 				foreach var of varlist `r(varlist)' {
@@ -177,9 +183,14 @@ version 17
 								if `i' > 1 order using`i'_type, after(using`=`i'-1'_tail)
 							}
 						}
+<<<<<<< HEAD
+
+						export excel "`outfile'", replace firstrow(variable) missing("")
+=======
+>>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
 					}
 				}
-				
+			
 				* decide if using is mergeable without safely
 				if `i' > 0 {
 					frame frm_data_info {
@@ -266,8 +277,14 @@ version 17
 						}
 					}
 				}
+<<<<<<< HEAD
+				
+				noi di "" //temp to be improved
+				ex 198
+=======
 				noi di in white "" //temp to be improved
 				exit 198
+>>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
 			}
 			
 			* decide what the final variable type should be using the following rule
@@ -369,6 +386,12 @@ version 17
 		if !missing("`safely'") & !missing("`outfile'") {
 			
 			frame frm_data_info {
+<<<<<<< HEAD
+						
+				noi di ""
+				noi di "Exporting safely option's outcomes"
+=======
+>>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
 				
 				noi di in white ""
 				noi di in white "Exporting safely option's outcomes"
@@ -377,6 +400,22 @@ version 17
 				else keep variable label master_type final_type using*_type
 				
 				export excel using "`outfile'", replace firstrow(variable) sheet("safely_output")
+<<<<<<< HEAD
+				
+				noi di in white "Successfully exported in `outfile'"
+				
+				mata: colwidths("`outfile'", "safely_output")
+			
+				mata: addlines("`outfile'", "safely_output", (1, `=_N' + 1), "medium")
+				
+				
+				if "`details'" ~= "" {
+					forval i = 1/`using_cnt' {
+						mata: colformats("`outfile'", "safely_output", ("using`i'_percent_missing", "using`i'_percent_unique"), "percent_d2")
+						mata : st_local("column_letter", numtobase26(`=4+(7*`i')'))
+					}
+				}	
+=======
 				noi di in white "Successfully exported in `outfile'.xlsx"
 				
 				mata: colwidths("`outfile'", "safely_output")
@@ -398,6 +437,7 @@ version 17
 						putexcel (`column_letter'1:`column_letter'`=`=_N'+1'), border("right", "medium", "black")
 					}
 				}
+>>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
 			}
 		}	
 	}
