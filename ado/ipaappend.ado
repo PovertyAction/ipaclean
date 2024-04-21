@@ -1,4 +1,4 @@
-*! version 0.0.1 22jan2024
+*! version 1.0.0 23jan2024
 *! Innovations for Poverty Action 
 * ipaappend: Safely append dataset
 
@@ -10,13 +10,12 @@ version 17
 	syntax anything(everything) [, 
 		OUTFile(string)
 		DETails
-		KEEPUsing(namelist)
+		keep(namelist)
 		NOLabel
 		NONOTEs
 		safely
 		report
 		replace
-		SHEETReplace
 		GENerate(name)
 		]
 	;
@@ -53,9 +52,9 @@ version 17
 			ex 198
 		}
 
-		* check that outfile is specified if replace & sheet replace are used
-		if missing("`outfile'") & !missing("`replace'`sheetreplace'") {
-			disp as err "option() outfile required if option replace() or sheetreplace are used"
+		* check that outfile is specified if replace is used
+		if missing("`outfile'") & !missing("`replace'") {
+			disp as err "option() outfile required if option replace() is used"
 			ex 198
 		}
 		
@@ -105,7 +104,7 @@ version 17
 				
 				tempfile tmf_`pre'_data
 				loc u`i'_cnt `c(N)'
-				if !missing("`keepusing'") keep `keepusing'
+				if !missing("`keep'") keep `keep'
 
 				save "`tmf_`pre'_data'"
 				
@@ -244,7 +243,7 @@ version 17
 
 				drop dsg_* *_dsg *_tmatch str_cnt
 
-				export excel using "`outfile'", sheet("report") cell(A2) first(varlab) `replace' `sheetreplace'
+				export excel using "`outfile'", sheet("report") cell(A2) first(varlab) `replace'
 				ipacolwidth using "`outfile'", sheet("report")
 			}
 		}
@@ -311,7 +310,7 @@ version 17
 
 					lab var final_type "final type"
 
-					export excel using "`outfile'",cell(A2) sheet("report") first(varlab) `replace' `sheetreplace'
+					export excel using "`outfile'",cell(A2) sheet("report") first(varlab) `replace'
 					
 				}
 			}
