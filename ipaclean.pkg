@@ -1,0 +1,13 @@
+v 1.0.0
+d 'IPACLEAN': IPA Stata commands for data cleaning.
+d
+d KW: data management
+d KW: data cleaning
+d
+d Requires: Stata version 17
+d
+d Distribution-Date: 20240421
+d
+d Authors: Innovations for Poverty Action
+d Support: researchsupport@poverty-action.org
+f ado/ipaappend.ado
