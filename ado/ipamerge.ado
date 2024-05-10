@@ -1,446 +1,373 @@
-*! version 1.0.0 01jul2023
+*! version 1.0.0 07may2024
 *! Innovations for Poverty Action
-
-cap program drop ipamerge //temp to be deleted
 
 program define ipamerge
 
 version 17
 		
-		#d;
-		syntax anything(everything) [, 
-			OUTFile(string)
-			DETails
-			FORMATinput(string)
-			GENerate(name)
-			KEEPUsing(namelist)
-			NOGENerate
-			NOLabel
-			NONOTEs
-			update
-			replace
-			safely
-			report
-			]
-		;
-		#d cr
+	#d;
+	syntax anything(everything) [, 
+		OUTFile(string)
+		DETails
+		KEEPUSing(namelist)
+		NOLabel
+		NONOTEs
+		update
+		replace
+		safely
+		MERGEREport
+		noreport
+		GENerate(name)
+		NOGENerate
+		assert(string)
+		keep(string)
+		sorted
+		]
+	;
+	#d cr
 		
-		qui {
-			
-			* declare tempfiles
-			tempfile master_tempdata
-			save `master_tempdata', replace
-			
-			* create frames
-			cap frame drop frm_data_info
-			frame create frm_data_info
+	qui {
 
-			* check using 
-			cap assert regexm("`anything'", "using ")
-			if _rc == 9 { 
-				di as err "using required"
-				ex 198
-			}
+		* tempfiles 
+		tempfile tmf_m_data tmf_u_data
 			
-			* check the merging type
-			gettoken mtype anything: anything
-			if !regexm("`mtype'", "^(1|m):(?:1|m)$") {
-				di as err "ipamerge `mtype' is an invalid merge type"
-				di as err _col(10) "merge types are 1:1, 1:m, m:1, or m:m"
-				ex 198
-			}
-			
-			* check varlist
-			loc varlist = substr(`"`anything'"', 1, strpos(`"`anything'"', "using") - 1)
-			unab varlist: `varlist'
-			
-<<<<<<< HEAD
-=======
-			* check safely and report
-			if !missing("`report'") & !missing("`safely'") {
-				di as err "report and safely cannot be combined together "
-				ex 198
-			}
-			
-			* check outfile and report and safely
-			if !missing("`outfile'") & missing("`report'`safely'") {
-				di as err "outfile cannot be used without report or safely"
-				ex 198
-			}
-			* check detail and outfile
-			if !missing("`details'") & missing("`outfile'") {
-				di as err "details cannot be used without outfile"
-				ex 198
-			}
-			* check generate and nogenerate
-			if !missing("`generate'") & !missing("`nogenerate'") {
-				di as err "syntax error: cannot apply both generate() and nogenrate options together"
-				ex 198
-			}
->>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
-			* get list of datasets
-			loc anything = substr(`"`anything'"', strpos(`"`anything'"', "using") + 5, .)
-			loc using_cnt: word count `anything'
-			
-			forval i = 0/`using_cnt' {
-				
-				if `i' == 0 {
-					frame frm_data_info {
-						gen variable 	= ""
-						gen label 		= ""
-						gen master_type = ""
-						gen master_dsg 	= ""
-					}
-					loc prefix "master"
-				}
-				
-				else {
-					
-					loc using`i': word `i' of `anything'
-					use "`using`i''", clear
-					loc prefix "using`i'"
-					tempfile `prefix'_tempdata
-					if !missing("`keepusing'") keep `varlist' `keepusing' //keep using
-					save ``prefix'_tempdata', replace
+		* create frames
+		cap frame drop frm_data_info
+		cap frame from frm_data_info_exp
+		frame create frm_data_info
 
-					frame frm_data_info {
-						gen using`i'_type = ""
-						gen using`i'_dsg  = ""
-						gen using`i'_tmatch = .
-						if !missing("`details'") {
-							gen using`i'_nb_missing = .
-							gen using`i'_percent_missing = .
-							gen using`i'_nb_unique = .
-							gen using`i'_percent_unique = .
-							gen using`i'_head = ""
-							gen using`i'_tail = ""
-						}
-					}
-<<<<<<< HEAD
-				}	
-=======
-				}
->>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
-				
-				ds
-				foreach var of varlist `r(varlist)' {
-					
-					* type and label
-					if `i' == 0 loc master_vtype = "`:type `var''"
-					loc vtype = "`:type `var''"
-					if regexm("`vtype'", "^str") {
-						destring `var', replace
-						loc v_dsg = "`vtype'" ~= "`:type `var''"
-					}
-					loc vlab = "`:var lab `var''"
-					
-					* missing
-					count if missing(`var')
-					loc cnt_missing `r(N)'
-					loc perc_missing `cnt_missing' /`=_N'
-					list if _n < 6
-					
-					* head and tail
-					loc head "`=`var'[1]', `=`var'[2]', `=`var'[3]', `=`var'[4]', `=`var'[5]'"
-					loc tail "`=`var'[_N-4]', `=`var'[_N-3]', `=`var'[_N-2]', `=`var'[_N-1]', `=`var'[_N]'"
-					
-					* unique
-					cap tempvar tmv_uniq_index restore_sort
-					gen `restore_sort' = _n
-					bys `var': gen `tmv_uniq_index' = _n
-					sort `restore_sort' //restore sorting
-					count if !missing(`var') & `tmv_uniq_index' == 1
-					loc cnt_unique `r(N)'
-					loc perc_unique `cnt_unique' /`=_N'
-					
-					frames frm_data_info {
-						cap assert variable ~= "`var'"
-						if !_rc {
-							frames frm_data_info {
-								
-								set obs `=`c(N)' + 1'
-								replace variable = "`var'" 	in `c(N)'
-								replace label 	 = "`vlab'" in `c(N)'
-							}
-						}
-						replace `prefix'_type = "`vtype'" if variable == "`var'"
-						replace `prefix'_dsg = "`v_dsg'" if variable == "`var'"
-						loc v_dsg = ""
-						
-						* check if the type match between master and each using
-						if `i' > 0 {
-							
-							replace `prefix'_tmatch = (regexm(`prefix'_type, "^str") == regexm(master_type, "^str")) ///
-													if variable == "`var'" & !missing(master_type)
-													
-							if !missing("`details'") {
-								replace `prefix'_nb_missing = `cnt_missing' if variable == "`var'"
-								replace `prefix'_percent_missing = `perc_missing' if variable == "`var'"
-								replace `prefix'_nb_unique = `cnt_unique' if variable == "`var'"
-								replace `prefix'_percent_unique = `perc_unique' if variable == "`var'"
-								replace `prefix'_head = "`head'" if variable == "`var'"
-								replace `prefix'_tail = "`tail'" if variable == "`var'"						
-								if `i' > 1 order using`i'_type, after(using`=`i'-1'_tail)
-							}
-						}
-<<<<<<< HEAD
+		* get merge type
+		gettoken mtype anything: anything
 
-						export excel "`outfile'", replace firstrow(variable) missing("")
-=======
->>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
-					}
-				}
+		* check if using is including in syntax
+		if !regexm(`"`anything'"', "using") { {
+			disp as err "using required"
+			ex 198
+		}
+
+		* get outfile and replace options
+		if !missing("`outfile'") {
+			gettoken filename outfile: outfile, parse(,)
 			
-				* decide if using is mergeable without safely
-				if `i' > 0 {
-					frame frm_data_info {
-						count if using`i'_tmatch == 0
-						loc using`i'_ready = (`r(N)' == 0)
-						* get all variables that cannot be merged
-						if `i' > 0 ///
-						levelsof variable if `prefix'_tmatch == 0, loc(using`i'_allvarstm) clean
-					}
-				}
-			}
+			if !missing(trim(itrim("`outfile'"))) loc sheetreplace = subinstr("`outfile'", ",", "", .)
+			loc outfile = "`filename'"
+		}
 
-			* report and outfile
-			if !missing("`report'") {
-				* foreach using
-				forval i = 1/`using_cnt' {
+		* check for merge variables 
+		loc id_vars = substr(`"`anything'"', 1, strpos(`"`anything'"', "using") - 1)
+		unab id_vars: `id_vars'
 
-					* report	
-					frame frm_data_info {			
-						noi di in white "" //temp improve
-						noi di in white "Reporting on `using`i''"
-						if !missing("`using`i'_allvarstm'") {
-							noi di as err "numeric/string mistmatch error(s) with `: word count `using`i'_allvarstm'' variables"
-							foreach var of local using`i'_allvarstm {
-								levelsof master_type if variable == "`var'", loc(master_tm) clean
-								levelsof using`i'_type if variable == "`var'", loc(using_tm) clean
-								noi di as err "`var' is `master_tm' in master but `using_tm' in `using`i''"
-							}
-						}
-						else {
-							noi di in white "no numeric/string mistmatch error is found"
-						}
-					}
-					
-					* outfile
-					if !missing("`outfile'") {
-						frame frm_data_info {
-							gen using`i'_report = ""
-							foreach var of local using`i'_allvarstm {
-								levelsof master_type if variable == "`var'", loc(master_tm) clean
-								levelsof using`i'_type if variable == "`var'", loc(using_tm) clean
-								replace using`i'_report = "`using_tm' but `master_tm' in master" ///
-								if variable == "`var'"
-								order using`i'_report, after(using`i'_type)
-							}
-							replace using`i'_report = "ok" ///
-							if master_type == using`i'_type & !missing(using`i'_type)
-							replace using`i'_report = "missing in master" ///
-							if missing(master_type) & !missing(using`i'_type)
-						}
-					}
-				}
-
-				* export if outfile
-				if !missing("`outfile'") {
-					
-					frame frm_data_info {
-						
-						noi di in white "" //temp to be improved
-						noi di in white "Exporting the report"
-						if !missing("`details'") keep variable label *_type *_report *_missing *_unique *_head *_tail
-						else keep variable label *_type *_report
-						
-						export excel using "`outfile'", replace firstrow(variable) sheet("report_output")
-						noi di in white "Successfully exported in `outfile'.xlsx"
-						
-						mata: colwidths("`outfile'", "report_output")
-						mata: addlines("`outfile'", "report_output", (1, `=_N' + 1), "medium")
-						putexcel set "`outfile'.xlsx", modify sheet("report_output")
-						putexcel (A1:A`=`=_N'+1'), border("left", "medium", "black")
-						putexcel (B1:B`=`=_N'+1'), border("right", "medium", "black")
-						putexcel (C1:C`=`=_N'+1'), border("right", "medium", "black")
-						
-						forval i = 1/`using_cnt' {
-							if !missing("`details'") {
-								mata: colformats("`outfile'", "report_output", ("using`i'_percent_missing", "using`i'_percent_unique"), "percent_d2")
-								mata : st_local("column_letter", numtobase26(`=3+(8*`i')'))
-								putexcel (`column_letter'1:`column_letter'`=`=_N'+1'), border("right", "medium", "black")
-							}
-							else {
-								mata : st_local("column_letter", numtobase26(`=3+(2*`i')'))
-								putexcel (`column_letter'1:`column_letter'`=`=_N'+1'), border("right", "medium", "black")
-							}
-						}
-					}
-				}
-<<<<<<< HEAD
-				
-				noi di "" //temp to be improved
+		* check that safely and report are not used together
+		if !missing("`mergereport'") & !missing("`safely'") {
+				disp as err "options mergereport and safely are mutually exclusive"
 				ex 198
-=======
-				noi di in white "" //temp to be improved
-				exit 198
->>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
-			}
-			
-			* decide what the final variable type should be using the following rule
-				* if var in all datasets are string, keep the final as a string
-				* if var is numeric in at least 1 dataset and all other can be converted, 
-					* use the highest numeric type 
-				* if var is numeric in at least 1 dataset and cannot be converted in at least 1 
-					* dataset, the set format to string	
-			frame frm_data_info {
-				
-				destring *_dsg, replace
-				egen str_cnt = rownonmiss(*_dsg)
-				egen dsg_cnt = anycount(*_dsg), values(1)
-				gen final_type = cond(str_cnt == dsg_cnt & str_cnt < (`using_cnt' + 1), ///
-											"numeric", "string")
-			}
+		}	
+
+		* check outfile is specified if report or safely is specified
+		if !missing("`outfile'") & missing("`mergereport'`safely'") {
+			disp as err "must specify option outfile() with mergereport or safely"
+			ex 198
+		}
 		
-			* safely
-			if !missing("`safely'") {
-	
-				forvalues  i = 0/`using_cnt' {
-					
-					* do the changes
-					if `i' == 0 {
-						use `master_tempdata', clear
-						loc prefix "master"
-					}
-					else {
-						local prefix "using`i'"
-						use ``prefix'_tempdata', clear
-					}
-					ds
-					foreach var of varlist `r(varlist)' {
-						frame frm_data_info {
-							levelsof `prefix'_type if variable == "`var'", loc(p_type) clean
-							levelsof final_type if variable == "`var'", loc(f_type) clean
-						}
-						
-						* tostring
-						if regexm("`f_type'", "^str") == 1 & regexm("`p_type'", "^str") == 0 {
-							loc fvar: format `var'
-							tostring `var', replace format("`fvar'")
-						}
-						
-						* destring
-						if regexm("`f_type'", "^str") == 0 & regexm("`p_type'", "^str") == 1 {				
-							destring `var', replace
-						}
-					}
-					save ``prefix'_tempdata', replace
-					loc using`i'_ready = 1		
-				}
-			}
+		* check that details is specified correctly
+		if !missing("`details'") & missing("`outfile'") {
+			disp as err "must specify option outfile() with option details"
+			ex 198
+		}
 
-		* run merge
-		use `master_tempdata', clear //master
+		* check that outfile is specified if replace is used
+		if missing("`outfile'") & !missing("`replace'") {
+			disp as err "option() outfile required if option replace() is used"
+			ex 198
+		}
 		
-		forval i = 1/`using_cnt' {
-			noi di ""
-			noi di "Trying to merge `using`i''.."
-			
-			* no, cannot be merged
-			if "`using`i'_ready'" ~= "1" {
-				
-				* error and details
-				noi di as error "Numeric/string mistmatch error(s)"
-				frame frm_data_info {
-					foreach var of local using`i'_allvarstm {
-						levelsof master_type if variable == "`var'", loc(master_tm) clean
-						levelsof using`i'_type if variable == "`var'", loc(using_tm) clean
-						noi di as error "`var' is `master_tm' in master but `using_tm' in `using`i''"
-						exit 198
-					}
-				}
+		* get list of datasets
+		loc using_data = substr(`"`anything'"', strpos(`"`anything'"', "using") + 5, .)
+		
+		* if there is data in memory use as master data else use append 1 as master data
+		save "`tmf_m_data'"
+
+		forval i = 0/1 {
+
+			if `i' == 0 {
+				loc pre "m"
+				loc pre_lab "master"
 			}
-			
-			* yes, can be merged
 			else {
+				loc pre "u"
+				loc pre_lab "using"
+			} 
+
+			frame frm_data_info {
+				if `i' == 0 gen variable 	= ""
+				if `i' == 0 gen label 		= ""
 				
-				* prepare generate
-				if missing("`nogenerate'") {
-					if missing("`generate'") {
-						if `using_cnt' == 1 local generate2 "gen(_merge)"
-						if `using_cnt' > 1 local generate2 "gen(_merge`i')"
-					}
-					else {
-						if `using_cnt' == 1 local generate2 "gen(`generate')"
-						if `using_cnt' > 1 local generate2 "gen(`generate'`i')"
-					}
+				gen `pre'_type 		= ""
+				lab var `pre'_type "`pre_lab'"
+				gen `pre'_dsg 		= ""
+			}
+
+			if !missing("`details'") {
+				frame frm_data_info {
+					gen `pre'_miss_cnt 	= ., after(`pre'_type)
+					lab var `pre'_miss_cnt "# missing"	
+					gen `pre'_miss_perc	= ., after(`pre'_miss_cnt)
+					lab var `pre'_miss_perc "% missing"
+					gen `pre'_uniq_cnt 	= ., after(`pre'_miss_perc)
+					lab var `pre'_uniq_cnt "# unique"
+					gen `pre'_uniq_perc 	= ., after(`pre'_uniq_cnt)
+					lab var `pre'_uniq_perc "% unique"
+
 				}
+			}
+
+			if `i' == 0 use "`tmf_m_data'", clear
+			else {
+				loc data: word 1 of `using_data'
+				use "`data'", clear
+
+				save "`tmf_u_data'"
+			}
+
+			foreach var of varlist _all {
+
+				* type and label
+				loc vtype = "`:type `var''"
+				if regexm("`vtype'", "^str") {
+					destring `var', replace
+					loc v_dsg = "`vtype'" ~= "`:type `var''"
+				}
+				else loc v_dsg ""
+				loc vlab = "`:var lab `var''"
 				
-				* run merge
-				noi merge `mtype' `varlist' using `using`i'_tempdata', ///
-					`generate2' `nogenerate' `nolabel' `nonotes'  `update' `replace'
+				* missing
+				count if missing(`var')
+				loc miss_cnt `r(N)'
+				loc miss_perc `miss_cnt' /`=_N'
+				
+				* unique
+				tab `var'
+				loc uniq_cnt `r(r)'
+				loc uniq_perc = `uniq_cnt'/`c(N)'
+				
+				frames frm_data_info {
+
+					cap assert variable ~= "`var'"
+					if !_rc {
+							
+						loc obs_cnt = `c(N)' + 1
+						set obs `obs_cnt'
+						replace variable = "`var'" 	in `c(N)'
+						replace label 	 = "`vlab'" in `c(N)'
+			
+					}
+
+					replace `pre'_type = "`vtype'" if variable == "`var'"
+					replace `pre'_dsg  = "`v_dsg'" if variable == "`var'"
+					
+					if !missing("`details'") {
+						
+						replace `pre'_miss_cnt  = `miss_cnt'  if variable == "`var'"
+						replace `pre'_miss_perc = `miss_perc' if variable == "`var'"
+						replace `pre'_uniq_cnt  = `uniq_cnt'  if variable == "`var'"
+						replace `pre'_uniq_perc = `uniq_perc'  if variable == "`var'"					
+					}	
+				}
+
 			}
 		}
 		
-		* outfile and safely
-		if !missing("`safely'") & !missing("`outfile'") {
+		* decide what the final variable type should be using the following rule
+		* if var in all datasets are string, keep the final as a string
+		* if var is numeric in at least 1 dataset and all other can be converted, 
+			* use the highest numeric type 
+		* if var is numeric in at least 1 dataset and cannot be converted in at least 1 
+			* dataset, the set format to string
+		frame frm_data_info {
+
+			destring *_dsg, replace
+			egen str_cnt = rownonmiss(*_dsg)
+			egen dsg_cnt = anycount(*_dsg), values(1)
+			gen merges  = cond(str_cnt == 2 | str_cnt == 0, 1, 0)
+			lab var merges "merges"
+			gen final_type = cond(str_cnt == dsg_cnt & str_cnt < 2, "numeric", "string")
+			lab var final_type "safe type"
+
+			lab define yesno 0 "No" 1 "Yes"
+			lab val merges yesno
+
+			count if merges == 0
+			loc merges_cnt `r(N)'
+
+			loc var_cnt = `c(N)'
+		}
+	
+		* Display text report if outfile is not specified
+		
+		if !missing("`mergereport'") & missing("`safely'") {
+			if `merges_cnt' > 0 {
+				noi disp
+				noi disp "IPAMERGE report: Dataset cannot be merged normally."
+				noi disp "`r(N)' variable(s) have different formats accross your datasets"
+				noi disp "Use the safely() option to append the datasets"
+				if missing("`outfile'") {
+					noi disp "Use the outfile() option to get more details about the datasets"
+					ex
+				}
+			}
+			else if `merges_cnt' == `var_cnt' {
+				noi disp "IPAMERGE report: Dataset can be appended normally."
+				if missing("`outfile'") ex 
+			}
+		}
+		
+		if !missing("`mergereport'") & !missing("`outfile'") {
 			
-			frame frm_data_info {
-<<<<<<< HEAD
-						
-				noi di ""
-				noi di "Exporting safely option's outcomes"
-=======
->>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
-				
-				noi di in white ""
-				noi di in white "Exporting safely option's outcomes"
-				order variable label master_type final_type
-				if !missing("`details'") keep variable label master_type final_type using*_type *_missing *_unique *_head *_tail
-				else keep variable label master_type final_type using*_type
-				
-				export excel using "`outfile'", replace firstrow(variable) sheet("safely_output")
-<<<<<<< HEAD
-				
-				noi di in white "Successfully exported in `outfile'"
-				
-				mata: colwidths("`outfile'", "safely_output")
-			
-				mata: addlines("`outfile'", "safely_output", (1, `=_N' + 1), "medium")
-				
-				
-				if "`details'" ~= "" {
-					forval i = 1/`using_cnt' {
-						mata: colformats("`outfile'", "safely_output", ("using`i'_percent_missing", "using`i'_percent_unique"), "percent_d2")
-						mata : st_local("column_letter", numtobase26(`=4+(7*`i')'))
+			* Output merge report 
+			frame copy frm_data_info frm_data_info_exp
+			frame frm_data_info_exp {
+
+				drop dsg_* *_dsg str_cnt
+
+				export excel using "`outfile'", sheet("report") cell(A2) first(varlab) `sheetreplace'
+				ipacolwidth using "`outfile'", sheet("report")
+			}
+		}
+
+		* If option safely is used, correct datasets
+
+		if !missing("`safely'") {
+
+			forval  i = 0/1 {
+
+				loc pre = cond(`i' == 0, "m", "u")
+				use "`tmf_`pre'_data'", clear
+
+				forval j = 1/`var_cnt' {
+					frame frm_data_info {
+						loc var = variable[`j']
+						loc c_type = `pre'_type[`j']
+						loc f_type = final_type[`j']
 					}
-				}	
-=======
-				noi di in white "Successfully exported in `outfile'.xlsx"
-				
-				mata: colwidths("`outfile'", "safely_output")
-				mata: addlines("`outfile'", "safely_output", (1, `=_N' + 1), "medium")
-				putexcel set "`outfile'.xlsx", modify sheet("safely_output")
-				putexcel (A1:A`=`=_N'+1'), border("left", "medium", "black")
-				putexcel (A1:A`=`=_N'+1'), border("right", "medium", "black")
-				putexcel (C1:C`=`=_N'+1'), border("right", "medium", "black")
-				putexcel (D1:D`=`=_N'+1'), border("right", "medium", "black")
-				
-				forval i = 1/`using_cnt' {
-					if !missing("`details'") {
-						mata: colformats("`outfile'", "safely_output", ("using`i'_percent_missing", "using`i'_percent_unique"), "percent_d2")
-						mata : st_local("column_letter", numtobase26(`=4+(7*`i')'))
-						putexcel (`column_letter'1:`column_letter'`=`=_N'+1'), border("right", "medium", "black")
-					}
-					else {
-						mata : st_local("column_letter", numtobase26(`=4+(1*`i')'))
-						putexcel (`column_letter'1:`column_letter'`=`=_N'+1'), border("right", "medium", "black")
+
+					if ("`f_type'" == "numeric") & regexm("`c_type'", "^str") {
+						destring `var', replace
+					} 
+					else if ("`f_type'" == "string") & regexm("`c_type'", "^(byte|int|long|float|double)") {
+						tostring `var', replace format("`:format `var''")
 					}
 				}
->>>>>>> 5833f6e52bb4d3ca901a810ae87eae536bcd69ae
+				
+				save "`tmf_`pre'_data'", replace
+
 			}
-		}	
+		}
+
+		if missing("`mergereport'") {
+			
+			* Merge datasets run merge
+
+			use "`tmf_m_data'", clear
+
+			merge `mtype' `id_vars' using "`tmf_u_data'", ///
+				`nolabel' `nonotes' ///
+				generate(`generate') `nogenerate' ///
+				`update' `replace' ///
+				`noreport' `sorted' ///
+				assert(`assert')
+
+			if !missing("`outfile'") {
+			
+				* Output append report 
+				frame copy frm_data_info frm_data_info_exp
+				frame frm_data_info_exp {
+
+					drop dsg_* *_dsg str_cnt
+
+					forval i = 1/`c(N)' {
+						loc var = variable[`i']
+						frame default {
+							loc type "`:type `var''"
+						}
+						replace final_type = "`type'" in `i'
+					}
+
+					lab var final_type "final type"
+
+					export excel using "`outfile'",cell(A2) sheet("report") first(varlab) `sheetreplace'
+					
+				}
+			}
+
+			* format output
+			if !missing("`outfile'") {
+
+				frame frm_data_info_exp {
+
+					if !missing("`details'") {
+						mata: format_report("`outfile'", "report", "details", 1)
+					}
+					else {
+						mata: format_report("`outfile'", "report", "nodetails", 1)
+					}
+					
+					ipacolwidth using "`outfile'", sheet("report")
+					ipacellfont using "`outfile'", sheet("report") rows(1 `=c(N)+2') cols(1 `=c(k)+1') fontname("Calibri") fontsize(10)
+
+				}
+			}
+		}
+		
 	}
+
 end
 
+mata:
+mata clear 
 
+void format_report(string scalar file, string scalar sheet, string scalar details, real scalar using_cnt) 
+{
+	real scalar i, j, k, startcol, adjust_by
+	class xl scalar b
+	b = xl()
+	b.load_book(file)
+	b.set_sheet(sheet)
+	b.set_mode("open")
+	
+	startcol = 3
+	adjust_by = 0
+	
+	if (details == "details") {
+		adjust_by = 4
+	}
+	
+	b.put_string(1, startcol, "Master")
+	b.set_sheet_merge(sheet, (1, 1), (startcol, startcol + adjust_by))
+	b.set_horizontal_align((1, 1), (startcol, startcol + adjust_by), "center")
+	b.set_left_border((1, st_nobs() + 2), (startcol, startcol), "medium")
+	b.set_number_format((3, st_nobs() + 2), (startcol + 1, startcol + 1), "number_sep")
+	b.set_number_format((3, st_nobs() + 2), (startcol + 2, startcol + 2), "percent_d2")
+	b.set_number_format((3, st_nobs() + 2), (startcol + 3, startcol + 3), "number_sep")
+	b.set_number_format((3, st_nobs() + 2), (startcol + 4, startcol + 4), "percent_d2")
+	
+	for (i = 1; i <= using_cnt; i++) {
+		startcol = startcol + adjust_by + 1
+		b.put_string(1, startcol, "Using dataset ")
+		b.set_sheet_merge(sheet, (1, 1), (startcol, startcol + adjust_by))
+		b.set_horizontal_align((1, 1), (startcol, startcol + adjust_by), "center")
+		b.set_left_border((1, st_nobs() + 2), (startcol, startcol), "thin")
+		b.set_number_format((3, st_nobs() + 2), (startcol + 1, startcol + 1), "number_sep")
+		b.set_number_format((3, st_nobs() + 2), (startcol + 2, startcol + 2), "percent_d2")
+		b.set_number_format((3, st_nobs() + 2), (startcol + 3, startcol + 3), "number_sep")
+		b.set_number_format((3, st_nobs() + 2), (startcol + 4, startcol + 4), "percent_d2")
+	}
+	
+	b.set_bottom_border((1, 1), (3, st_nvar()), "thin")
+	b.set_bottom_border((2, 2), (1, st_nvar()), "thick")
+	b.set_left_border((1, st_nobs() + 2), (startcol + adjust_by + 1, startcol + adjust_by + 1), "medium")
+	
+	b.close_book()
+
+}
+
+end

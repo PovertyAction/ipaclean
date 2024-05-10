@@ -1,4 +1,4 @@
-*! version 1.0.0 23jan2024
+*! version 1.0.0 07may2024
 *! Innovations for Poverty Action 
 * ipaappend: Safely append dataset
 
@@ -25,6 +25,7 @@ version 17
 		
 		* create frames
 		cap frame drop frm_data_info
+		cap frame drop frm_data_info_exp
 		frame create frm_data_info
 		
 		* check using
