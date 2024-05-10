@@ -18,8 +18,28 @@
 
 	* Import excel sheet with names and IDs
 	
-	import excel using "ipa_compare_output_markup.xlsx", clear first sheet("details") cellra(B3) case(l)
-	keep id respondentname 
+	* import excel using "ipa_compare_output_markup.xlsx", clear first sheet("details") cellra(B3) case(l)
+	* keep id respondentname
+	
+	set obs 1232
+	
+	gen region_id = string(runiformint(1, 4))
+	gen district_id = region_id + string(runiformint(1, 3)) 
+	gen community_id = district_id + string(runiformint(1, 9))
+	
+	destring _all, replace
+	
+	bys community_id: gen index = _n
+	
+	gen hhid = cond(index < 10, string(community_id) + "H0" + string(index), string(community_id) + "H" + string(index))
+
+	
+	gen region = "Region " + string(region_id)
+	lab var region "Select Respondent's Region:"
+	gen community = "Community " + string(community_id)
+	lab var community "Select Respondent's Community:"
+	
+	sort region community, stable
 	
 	* Add additional details
 	
@@ -29,17 +49,11 @@
 	
 	gen int age = runiformint(18, 48)
 	
-	gen region = "Region " + string(runiformint(1, 4))
-	lab var region "Select Respondent's Region:"
-	gen community = subinstr(region, "Region", "Community", 1) + char(runiformint(65, 69))
-	lab var community "Select Respondent's Community:"
-	
-	sort region community, stable
 	gen byte treatment = runiform() < 0.5
 	lab var treatment "Treatment Status"
 	gen byte treatment_type = cond(!treatment, 0, runiformint(1, 3))
 	lab var treatment_type "Treatment Category"
-	
+
 	* save data as dta, csv and xlsx
 	save "simulated data/Deworming Project - Master Dataset", replace
 	export delim using "simulated data/Deworming Project - Master Dataset", replace nolab

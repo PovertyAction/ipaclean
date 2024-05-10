@@ -10,11 +10,11 @@
 	
 	* Generate Master Dataset
 	
-	qui include "../../src/ipacompare.ado"
+	net install ipaclean, all replace from(C:\Users\IBaako\Documents\github\ipaclean)
 	
 	loc data "../0 test data/simulated data"
 
-	ipacompare, id(id) date(submissiondate) keepmaster(respondentname sex) ///
+	ipacompare, id(hhid) date(submissiondate) keepmaster(sex) ///
 				consent(consent, 1) outcome(complete, 1 2) ///
 				m("`data'/Deworming Project - Master Dataset") ///
 				s1("`data'/Deworming Project - Census", "Census") ///
