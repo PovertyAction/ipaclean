@@ -1,9 +1,7 @@
-*! version 0.0.1 18jan2024
+*! version 1.0.0 05may2024
 *! Innovations for Poverty Action
 
 program define ipacompare, rclass
-
-	version 17
 	
 	#d;
 	syntax, 
@@ -11,7 +9,7 @@ program define ipacompare, rclass
 		date(name)
 		[OUTCome(string)]
 		[CONSent(string)]
-		[Masterdata(string) keepmaster(namelist)] 
+		[Masterdata(string) KEEPMaster(namelist)] 
 		s1(string)
 		[s2(string)
 		s3(string)
@@ -30,7 +28,7 @@ program define ipacompare, rclass
 	
 	qui {
 
-		* preserve
+		preserve
 		
 		* tempfiles 
 		tempfile tmf_master tmf_using
@@ -262,28 +260,21 @@ program define ipacompare, rclass
 			
 			export excel using "`outfile'", sheet("summary") replace first(varl)
 			
-			mata: setheader("`outfile'", "summary")
-			mata: colwidths("`outfile'", "summary")
-			mata: colformats("`outfile'", "summary", ("round", "vars", "vars_nomiss", "vars_allmiss", "obs", "miss"), "number_sep")
-			if `_cons' mata: colformats("`outfile'", "summary", ("consent"), "number_sep")
-			if `_outc' mata: colformats("`outfile'", "summary", ("complete"), "number_sep")
-			mata: colformats("`outfile'", "summary", ("firstdate", "lastdate"), "date_d_mon_yy")
+			iparowformat using "`outfile'", sheet("summary") type(header)
+			ipacolwidth using "`outfile'", sheet("summary")
+			if `_cons' loc vars "consent"
+			if `_outc' loc vars "`vars' complete"
+			ipacolformat using "`outfile'", sheet("summary") vars(round vars vars_nomiss vars_allmiss obs miss `vars') format("number_sep")
+			ipacolformat using "`outfile'", sheet("summary") vars(firstdate lastdate) format("date_d_mon_yy")
 		}
 		
 		* export variables sheet 
 		frame frm_vars {
 			
 			export excel using "`outfile'", sheet("variables") first(varl) cell(A2)
-		
-			mata: colwidths("`outfile'", "variables")
-			
-			loc vars = ""
-			foreach var of varlist misn* unqn* {
-				if missing(`"`vars'"') loc vars = char(34)  + "`var'" + char(34)
-				else loc vars = `"`vars'"' + "," + char(34)  + "`var'" + char(34)
-			}
-			
-			mata: colformats("`outfile'", "variables", (`vars'), "number_sep")
+			ipacolwidth using "`outfile'", sheet("variables")
+
+			ipacolformat using "`outfile'", sheet("variables") vars(misn* unqn*) format(number_sep)
 			
 			loc headers = ""
 			foreach sr of numlist `srs' {
@@ -361,16 +352,11 @@ program define ipacompare, rclass
 		}
 		
 		export excel using "`outfile'", sheet("tracking") first(varl) cell(A2)
-		mata: colwidths("`outfile'", "tracking")
+		ipacolwidth using "`outfile'", sheet("tracking")
 		
 		loc vars = ""
 		ds, has(format %td)
-		foreach var of varlist `r(varlist)' {
-			if missing(`"`vars'"') loc vars = char(34)  + "`var'" + char(34)
-			else loc vars = `"`vars'"' + "," + char(34)  + "`var'" + char(34)
-		}
-		
-		mata: colformats("`outfile'", "tracking", (`vars'), "date_d_mon_yy")
+		ipacolformat using "`outfile'", sheet("tracking") vars(`r(varlist)') format("date_d_mon_yy")
 		
 		mata: st_local("n", strofreal(st_varindex("date1")))
 		noi mata: format_ipc_tracking("`outfile'", "tracking", (`headers'), `n', `=`_cons' + `_outc'')

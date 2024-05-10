@@ -1,16 +1,15 @@
-*! version 0.0.1 16jan2023
+*! version 1.0.0 07may2024
 *! Innovations for Poverty Action
 * ipaodkmergerepeats: Reshape & Merge data from ODK style repeat groups
 
-program define ipaodkmergerepeats, rclass
+program define ipaodkmergerepeats
 	
 	version 13
 
-	syntax using/[, saving(string) FOLDer(string)]
+	syntax using/[, saving(string) FOLDer(string) replace]
 	
 	tempfile tmf_master
 	
-
 	qui {
 	    * load master data set
 	    use "`using'", replace
@@ -41,6 +40,9 @@ program define ipaodkmergerepeats, rclass
 			loc dta = "`folder'/" + `dta'
 			reshapemerge using "`dta'", svar(`var') folder("`folder'")
 		}
+
+		* save dataset
+		if "`saving'" == "" save "`saving'", `replace'
 		
 	}
     
