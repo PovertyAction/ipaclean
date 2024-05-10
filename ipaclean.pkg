@@ -11,3 +11,6 @@ d
 d Authors: Innovations for Poverty Action
 d Support: researchsupport@poverty-action.org
 f ado/ipaappend.ado
+f ado/ipamerge.ado
+f ado/ipaodkmergerepeats.ado
+f ado/ipacompare.ado
