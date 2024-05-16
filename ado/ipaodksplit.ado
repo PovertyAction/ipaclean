@@ -1,53 +1,81 @@
-*! version 0.0.1 01jul2023
+*! version 1.0.0 10may2023
 
 program define ipaodksplit, rclass
 
 version 17
 
-	syntax [using/], [order ignore]
+	syntax [using/], [order exclude label prefix(string) LANGuage(string)]
+
+	cap frame drop frm_*
+	frame create frm_survey
+	frame create frm_choices
 	
 	qui {
+
+		* check syntax
+		if !mi("`language'") & mi("`label'") {
+			disp as err "Option language cannot be specified without option label"
+			ex 198
+		}
 		
-		preserve
-			
-			//1- XLS form: import the survey sheet
-			import excel type name disabled using "`using'", sheet("survey") clear
+		frame frm_survey {
+
+			* Import XLS form: import the survey sheet
+			import excel using "`using'", sheet("survey") clear allstr first
+			keep type name disabled 
+
 			keep if regexm(type, "select_multiple") & !regexm(lower(disabled), "yes")
-			
+
 			* Count number of select_multiple variables
 			loc sm_count `=_N'
 			
 			* Foreach select_multiple variable: pick out the variable name and its choice name
-			forval i = 1/`sm_count' {
-				loc sm_`i'_chn = subinstr(type[`i'], "select_multiple ", "", .)
-				loc sm_`i' = name[`i']
-			}
+			gen choice_name = word(type, 2)
 
+			* make a list of choice_names used in sm
+			levelsof choice_name, loc(choice_names) clean
+		}
+
+		frame frm_choices {
+
+			* XLS form: import the choices sheet
+			import excel using "`using'", sheet("choices") clear first allstr case(l)
+			keep if !missing(list_name)
+			keep list_name value label*
 			
-			//2- XLS form: import the choices sheet
-			import excel list_name value label using "`using'", sheet("choices") clear
-			replace value = subinstr(value, "-", "x", .) //az?
-			
-			* Foreach select_multiple variable:
-			forval i = 1/`sm_count' {
-			
-				* For each choice name: pic out the values
-				levelsof value if list_name == "`sm_`i'_chn'", loc(sm_`i'_chv) clean
-				
-					* For each choice name: pic out the value's labels
-					foreach j in `sm_`i'_chv' {
-						
-						if regexm("`j'", "x") loc j2 = subinstr("`j'", "x", "", .)
-						else loc j2 = "`j'"
-						levelsof label if list_name == "`sm_`i'_chn'" & value == "`j'", loc(m_`i'_chv_`j2') clean
+			* check for multiple language columns
+			* If language is not specified, assume first column as language column
+
+			unab labels: label*
+
+			if wordcount("`labels'") > 1 {
+				if !missing("`language'") {
+					cap confirm var label`language'
+					if _rc == 111 {
+						disp as err "Label language `language' not found"
+						ex 198
 					}
-					
+					loc labuse = word("`labels'", 1)
+				}
+				else loc labuse = word("`labels'", 1) 
+
+				loc labdrop: list labels - labuse
+				drop `labdrop' 
 			}
-			
-		restore
+			else loc labuse "label"
 
+			* keep only relevant choice list 
+			gen keep_choice = 0
+			foreach choice in `choice_names' {
+				replace keep_choice = 1 if list_name == "`choice'"
+			}
 
-		//3- Dummies variables for all values defined in XLS form, with ignore option
+			keep if keep_choice
+			drop keep_choice
+		}
+
+		* Create dummy vars for all values defined in XLS form, with ignore option
+		
 		local nbvarsplit = 0
 		tempvar _split_var
 		gen `_split_var' = ""
@@ -57,34 +85,60 @@ version 17
 		noi disp
 		noi disp "{ul:select_multiple}" _column(25) "{ul:number of dummies}"
 		
+		tempname sm_var_use 
+		gen `sm_var_use' = ""
+
 		forval i = 1/`sm_count' {
-			
-			cap confirm var `sm_`i''
-			if !_rc | missing("`ignore'") {
+
+			frame frm_survey: loc sm_var 	= name[`i']
+			replace `sm_var_use' = "_" + subinstr(trim(itrim(`sm_var')), " ", "_", .) + "_" if !mi(`sm_var')
+
+			frame frm_survey: loc sm_list 	= choice_name[`i']
+
+			frame copy frm_choices frm_single
+
+			frame frm_single: keep if list_name == "`sm_list'"
+			frame frm_single {
+				loc list_cnt = `=_N'
+			} 
+
+			loc new_cnt 0
+			loc new_list ""
+			forval j = 1/`list_cnt' {
 				
-				qui replace `_split_var' = "_" + subinstr(`sm_`i'', " ", "_", .) + "_" if `sm_`i'' != ""
-				
-				foreach j in `sm_`i'_chv' {
-					gen `sm_`i''_`j' = regex(`_split_var', "_`j'_") //if !missing(`sm_`i'')
-					* label dummy
-					lab values `sm_`i''_`j' _yesno
-					* label variables
-					loc varlab "`:variable label `sm_`i'''"
-					lab var `sm_`i''_`j' "`sm_`i'' [`j']"
-					notes `sm_`i''_`j': "`sm_`i'' - [`j'] - `varlab'"
+				frame frm_single: loc item = value[`j']
+
+				cap confirm var `sm_var'`prefix'`j'
+				if !_rc {
+					disp as err "variable `sm_var'_`j' already exist. Use prefix opton eg. prefix(_r)"
+					ex 198
 				}
-	
-				//4- Option to Order new dummy vars right after original select_multiple variable
-				if !missing("`order'") {
-					order `sm_`i''_*, after(`sm_`i'') sequential
+				else {
+					if !mi("`exclude'") {
+						count if regexm(`sm_var_use', "_`j'_") & !mi(`sm_var_use')
+						loc exc_var = cond(`r(N)' == 0, 1, 0)
+					}
+					else loc exc_var 0
+					if !`exc_var' {
+						gen `sm_var'`prefix'`j' = regexm(`sm_var_use', "_`j'_") if !mi(`sm_var_use')
+						
+						if !mi("`label'") {
+							frame frm_single: loc lab = `labuse'[`j']
+							lab var `sm_var'`prefix'`j' "`lab'"
+						}
+
+						loc new_list "`new_list' `sm_var'`prefix'`j'"
+						loc ++new_cnt
+					}
 				}
-		
-				//5- Show information about variables that are split
-				loc newvar_count = wordcount("`sm_`i'_chv'")
-				noi disp "`sm_`i''" _column(25) "`newvar_count'"
-				local nbvarsplit = `nbvarsplit' + 1
 
 			}
+
+			if "`order'" ~= "" order `new_list', after(`sm_var')
+
+			noi disp "`sm_var'" _column(25) "`new_cnt'"
+			loc ++nbvarsplit
+
 		}
 		
 		//6- Return the number of variables split
@@ -92,5 +146,3 @@ version 17
 	}
 
 end
-
-

@@ -1,4 +1,4 @@
-*! version 0.0.1 22jan2024
+*! version 1.1.0 10may2024
 *! Innovations for Poverty Action 
 * ipacodebook: export and/or apply excel codebook
 
@@ -78,6 +78,7 @@ program define ipacodebook, rclass
 			count if !missing(new_variable)
 			loc new_variable_cnt `r(N)'
 			
+			cap frame drop frm_codebook
 			frame put _all, into(frm_codebook)
 			
 			* import new value labels
@@ -144,7 +145,16 @@ program define ipacodebook, rclass
 					frames frm_codebook: loc vname_new  = new_variable[`i']
 					
 					if "`vname_new'" ~= "" ren `vname' `vname_new'
-				}	
+
+					loc oldlist = "`oldlist' `vname'"
+					loc newlist = "`newlist' `vname_new'"
+				}
+
+				loc varlist: list varlist - oldlist
+				loc varlist: list varlist | newlist
+
+				unab alllist: _all
+				loc varlist: list alllist & varlist	
 			}
 		}
 

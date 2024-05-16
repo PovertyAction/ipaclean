@@ -70,39 +70,20 @@ masterdata({help filename}) specifies the master dataset that contains the detai
 
     {hline}
     Setup
-{phang2}{cmd:. webuse even}{p_end}
-{phang2}{cmd:. list}{p_end}
-{phang2}{cmd:. webuse odd}{p_end}
-{phang2}{cmd:. list}
+{phang2}{cmd:. unzipfile "https://raw.github.com/PovertyAction/ipaclean/main/data/ipacompare_test_data.zip"}{p_end}
 
-{pstd}Append even data to the end of the odd data{p_end}
-{phang2}{cmd:. ipaappend using https://www.stata-press.com/data/r18/even}{p_end}
+{pstd}Compare data from 4 rounds of data collection to a master dataset{p_end}
+{phang2}{cmd:. ipacompare, id(hhid) date(submissiondate) keepmaster(sex) consent(consent, 1) outcome(complete, 1 2) m("Deworming Project - Master Dataset") s1("`data'/Deworming Project - Census", "Census") s2("`data'/Deworming Project - Baseline", "Baseline") s3("`data'/Deworming Project - Midline", "Midline") s4("`data'/Deworming Project - Endline", "Endline") outfile(compare.xlsx) replace}{p_end}
 
-{pstd}List the results{p_end}
-{phang2}{cmd:. list}
-
-    {hline}
-    Setup
-{phang2}{cmd:. sysuse auto, clear}{p_end}
-{phang2}{cmd:. keep if foreign == 0}{p_end}
-{phang2}{cmd:. tostring price, replace}{p_end}
-{phang2}{cmd:. save domestic}{p_end}
-{phang2}{cmd:. sysuse auto}{p_end}
-{phang2}{cmd:. keep if foreign == 1}{p_end}
-
-{pstd}Appending domestic car data to the end of the foreign car data using the 
-native append command will result in an error as price is "string" in master and 
-"numeric" in appending dataset. Using the force option will result in losing data 
-from the appending dataset. Using {cmd:ipaappend's} safely option can append the 
-datasets without lose of data{p_end}
-{phang2}{cmd:. ipaappend using domestic, outfile("append_report.xlsx") safely replace}{p_end}
+{pstd}Compare data from 4 rounds of data collection without a master dataset{p_end}
+{phang2}{cmd:. ipacompare, id(hhid) date(submissiondate) consent(consent, 1) outcome(complete, 1 2) s1("Deworming Project - Census", "Census") s2("Deworming Project - Baseline", "Baseline") s3("Deworming Project - Midline", "Midline") s4("Deworming Project - Endline", "Endline") outfile(compare.xlsx) replace}{p_end}
 
 {text}
 {title:Author}
 
-{pstd}Arsène Baowendmanegré Zongo & Ishmail Azindoo Baako{p_end}
+{pstd}Ishmail Azindoo Baako{p_end}
 {pstd}GRDS, Innovations for Poverty Action{p_end}
 
 {title:Also see}
 
-Related Help Files: {help ipaclean:ipaclean}, {help ipamerge:ipamerge}, {help append:[D] append}
+Related Help Files: {help ipaclean:ipaclean}, {help ipatracksurvey:ipatracksurvey}

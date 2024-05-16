@@ -172,14 +172,14 @@ program define ipareshape, rclass
 			foreach j_val in `j_values' {
 				local ++num
 				frame put `no_stub' `stub_var' if `jvar'== `j_val', into(frm_`num')
-				frame frm_`num' : {
+				frame frm_`num' {
 					foreach var in `stub_var' {
+						noi disp ">> `var' >> `var'`j_val'"
 						rename `var' `var'`j_val'
 					}
 				
 				}
 			}
-			
 			
 			
 			frame change frm_1
