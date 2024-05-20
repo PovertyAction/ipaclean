@@ -10,6 +10,7 @@ d Distribution-Date: 20240516
 d
 d Authors: Innovations for Poverty Action
 d Support: researchsupport@poverty-action.org
+f ado/ipaclean.ado
 f ado/ipaappend.ado
 f ado/ipamerge.ado
 f ado/ipaodkmergerepeats.ado
@@ -17,6 +18,7 @@ f ado/ipacompare.ado
 f ado/ipacodebook.ado
 f ado/ipaodksplit.ado 
 d
+f sthlp/ipaclean.sthlp
 f sthlp/ipaappend.sthlp
 f sthlp/ipamerge.sthlp
 f sthlp/ipaodkmergerepeats.sthlp
