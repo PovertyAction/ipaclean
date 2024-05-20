@@ -2,7 +2,7 @@
 *! Innovations for Poverty Action
 * ipaclean: IPA Stata Package for Data Cleaning
 
-program ipahelper, rclass
+program ipaclean, rclass
 	
 	version 17
 	

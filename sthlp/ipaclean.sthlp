@@ -31,18 +31,21 @@ Display version information for commands in the ipaclean package
 
 {pstd}
 {cmd:ipaclean} a suite of commands for simplifying data cleaning task.
+{p_end}
 
 {hline}
 
-{title:Options for {it:ipaclean update}}
+{title:Options for ipaclean update}
 
 {phang}
 {cmd:branch("branchname")} - Specifies the GitHub repository branch to connect to for updates. This option is intended for debugging purposes or when specifically requested by the authors. 
+{p_end}
 
 {hline}
 
 {pstd}
 {cmd:ipaclean version} - Displays version information for all commands included in the ipaclean package.
+{p_end}
 
 {hline}
 
@@ -51,18 +54,16 @@ Display version information for commands in the ipaclean package
 {phang}
 {txt}To check the version of all commands:{p_end}
 
-{phang}{com}. ipaclean version
+{phang}{com}. ipaclean version{p_end}
 
 {phang}
 {txt}To update all commands within the package:{p_end}
 
-{phang}{com}. ipaclean update
+{phang}{com}. ipaclean update{p_end}
 
 {title:Remarks}
 
-{pstd}Source code and all files for the {cmd:ipaclean} package can be found
-{browse "https://github.com/PovertyAction/ipaclean":here} on GitHub. 
-The {cmd:ipaclean} package includes the following commands:
+{pstd}Source code and all files for the {cmd:ipaclean} package can be found{p_end}
 
 {synoptset 30 tabbed}{...}
 {synopthdr:Program}
@@ -79,7 +80,7 @@ The {cmd:ipaclean} package includes the following commands:
 
 {title:Acknowledgements}
 
-{pstd}The {cmd:ipaclean} package and all associated materials are developed by the Global Research & Data Support (GRDS) team at Innovations for Poverty Action.
+{pstd}The {cmd:ipaclean} package and all associated materials are developed by the Global Research & Data Support (GRDS) team at Innovations for Poverty Action.{p_end}
 
 {title:Authors}
 
