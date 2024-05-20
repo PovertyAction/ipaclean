@@ -1,0 +1,3 @@
+v 1.0.0
+d IPA Stata programs
+p ipacclean IPA stata modules for data cleaning
