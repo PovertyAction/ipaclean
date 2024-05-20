@@ -54,7 +54,7 @@ program define ipaclean_version
 		* get list of programs from pkg file 
 		tempname pkg
 		loc linenum = 0
-		file open `pkg' using "`url'/`branch'/ipahelper.pkg", read
+		file open `pkg' using "`url'/`branch'/ipaclean.pkg", read
 		file read `pkg' line
 		
 		while r(eof)==0 {
