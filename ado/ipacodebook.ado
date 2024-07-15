@@ -1,4 +1,4 @@
-*! version 1.1.0 10may2024
+*! version 2.0.0 15july2024
 *! Innovations for Poverty Action 
 * ipacodebook: export and/or apply excel codebook
 
@@ -9,20 +9,21 @@ program define ipacodebook, rclass
 			using/
 			[if] [in]
 			[, replace template]
+			[Statistics(namelist) STATVariables(string)]
 			[note(string)]
 			[APPLYusing(string)]
 			;
 	#d cr
 
 	* Create tempfile for data in memory
-	tempfile tmf_data
-	
-	save "`tmf_data'"
+	tempfile tmf_data tmf_stats
 	
 	qui {
+
+		save "`tmf_data'"
 		
 		* mark sample
-		marksample touse, strok
+		marksample touse, nov strok
 		keep if `touse'
 		drop `touse'
 		
@@ -158,10 +159,46 @@ program define ipacodebook, rclass
 			}
 		}
 
+		save "`tmf_data'", replace
+
+		* ----------------------------------------------------------------------
+		* Create additional statistics for numeric variables
+		* ----------------------------------------------------------------------
+
+		if !missing("`statistics'") | !missing("`statvariables'") {
+
+			use "`tmf_data'", clear
+			if !missing("`statvariables'") keep `statvariables'
+			else {
+				ds, has(type numeric)
+				keep `r(varlist)'
+			}
+			unab vars: * 
+
+			tabstat `vars', stat(`statistics') save
+			mat X = r(StatTotal)'
+			clear
+			svmat X, names(col)
+
+			unab statvarlist: * 
+
+			gen str32 variable = ""
+			loc i = 1
+			foreach var in `vars' {
+				replace variable = "`var'" in `i'
+				loc ++i 
+			}
+
+			save "`tmf_stats'"
+
+		}
+		
 		* ----------------------------------------------------------------------
 		* Create and export the excel coodebook
 		* ----------------------------------------------------------------------
 		
+		use "`tmf_data'", clear
+
 		cap frame drop frm_codebook
 		cap frame drop frm_choice_list
 		#d;
@@ -260,11 +297,17 @@ program define ipacodebook, rclass
 				gen new_label = "", after(label)
 	
 			}
+
+			* Merge in stats
+			if !missing("`statistics'") | !missing("`statvariables'") {
+				merge 1:1 variable using "`tmf_stats'", nogen 
+			}
 			
 			export excel using "`using'", first(var) sheet("codebook") `replace'
-			mata: colwidths("`using'", "codebook")
-			mata: colformats("`using'", "codebook", "percent_missing", "percent_d2")
-			mata: addlines("`using'", "codebook", (1, `=_N' + 1), "medium")
+			ipacolwidth using "`using'", sheet("codebook")
+			ipacolformat using "`using'", sheet("codebook") vars(percent_missing) format("percent_d2")
+			if !missing("`statvarlist'") ipacolformat using "`using'", sheet("codebook") vars(`statvarlist') format("number_sep_d2")
+			iparowformat using "`using'", sheet("codebook") type(header)
 			
 			* save vallels in local
 			levelsof vallabel, clean
