@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0.0 Innovations for Poverty Action 23Apr2024}{...}
+{* *! version 1.0.0 Innovations for Poverty Action 15jul2024}{...}
 
 {vieweralsosee "[D] merge" "help merge"}{...}
 {vieweralsosee "" "--"}{...}
@@ -12,7 +12,6 @@
 {vieweralsosee "[D] joinby" "help joinby"}{...}
 {vieweralsosee "[D] save" "help save"}{...}
 {viewerjumpto "Syntax" "ipamerge##syntax"}{...}
-{viewerjumpto "Menu" "ipamerge##menu"}{...}
 {viewerjumpto "Description" "ipamerge##description"}{...}
 {viewerjumpto "Options" "ipamerge##options"}{...}
 {viewerjumpto "Examples" "ipamerge##examples"}{...}
@@ -331,7 +330,7 @@ The order of the words or codes is not important, so all the following
 {marker examples}{...}
 {title:Examples}
 
-    {hline}
+    {synoptline}
 {pstd}Setup{p_end}
 {phang2}{cmd:. webuse autosize}{p_end}
 {phang2}{cmd:. list}{p_end}
@@ -343,9 +342,11 @@ The order of the words or codes is not important, so all the following
 {phang2}{cmd:. ipamerge 1:1 make using https://www.stata-press.com/data/r18/autoexpense}{p_end}
 {phang2}{cmd:. list}{p_end}
 
-    {hline}
-{pstd}Perform 1:1 match merge, with different data types{break}
+    {synoptline}ss
+{pstd}Perform 1:1 match merge, with different data types{p_end}
+
 (The {cmd:merge} command intentionally causes an error message.){p_end}
+
 {phang2}{cmd:. sysuse auto, clear}{p_end}
 {phang2}{cmd:. keep make price trunk weight length turn displacement gear_ratio foreign}{p_end}
 {phang2}{cmd:. tostring foreign, force replace}{p_end}
@@ -353,9 +354,21 @@ The order of the words or codes is not important, so all the following
 {phang2}{cmd:. sysuse auto, clear}{p_end}
 {phang2}{cmd:. keep make price mpg rep78 headroom foreign}{p_end}
 {phang2}{cmd:. tostring price, replace}{p_end}
+{phang2}{cmd:. save "master_data", replace}{p_end}
+
+{pstd}Performing a regular merge using the merge command produces and error{p_end}
+
 {phang2}{cmd:. merge 1:1 make using "using_data"}{p_end}
-{pstd}The native merge command produces and error. We can use ipappend with the safe option to safely{p_end}
+
+{pstd}Using the force option will lead to missing values in the dataset{p_end}
+{phang2}{cmd:. ipamerge 1:1 make using "using_data", force}{p_end}
+
+
+{pstd}We can use ipappend with the safe option to safely{p_end}
+
+{phang2}{cmd:. use "master_data", clear}{p_end}
 {phang2}{cmd:. ipamerge 1:1 make using "using_data", safely outfile("mergereport.xlsx", replace)}{p_end}
+{synoptline}
 
 {text}
 {title:Author}
