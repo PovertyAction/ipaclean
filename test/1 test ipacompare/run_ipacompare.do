@@ -10,7 +10,7 @@
 	
 	* Generate Master Dataset
 	
-	net install ipaclean, all replace from(C:\Users\IBaako\Documents\github\ipaclean)
+	* net install ipaclean, all replace from(C:\Users\IBaako\Documents\github\ipaclean)
 	
 	loc data "../0 test data/simulated data"
 

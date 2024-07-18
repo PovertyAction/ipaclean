@@ -1,4 +1,4 @@
-*! version 1.0.0 05may2024
+*! version 1.0.0 18jul2024
 *! Innovations for Poverty Action
 
 program define ipacompare, rclass
