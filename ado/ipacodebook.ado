@@ -300,7 +300,10 @@ program define ipacodebook, rclass
 
 			* Merge in stats
 			if !missing("`statistics'") | !missing("`statvariables'") {
+				gen __index = _n
 				merge 1:1 variable using "`tmf_stats'", nogen 
+				sort __index
+				drop __index
 			}
 			
 			export excel using "`using'", first(var) sheet("codebook") `replace'
