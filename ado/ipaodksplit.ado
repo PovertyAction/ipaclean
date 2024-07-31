@@ -4,13 +4,16 @@ program define ipaodksplit, rclass
 
 version 17
 
-	syntax [using/], [order exclude label prefix(string) LANGuage(string)]
-
-	cap frame drop frm_*
-	frame create frm_survey
-	frame create frm_choices
+	syntax [using/], [order exclude label vallab(name) prefix(string) LANGuage(string)]
 	
 	qui {
+		
+		* clear frames 
+		cap frame drop frm_*
+		
+		* create new frames
+		frame create frm_survey
+		frame create frm_choices
 
 		* check syntax
 		if !mi("`language'") & mi("`label'") {
@@ -79,7 +82,6 @@ version 17
 		local nbvarsplit = 0
 		tempvar _split_var
 		gen `_split_var' = ""
-		lab define _yesno 0 "No" 1 "Yes"
 		
 		noi disp "Splitting select_multiple variable into dummies ..."
 		noi disp
@@ -126,6 +128,8 @@ version 17
 							frame frm_single: loc lab = `labuse'[`j']
 							lab var `sm_var'`prefix'`j' "`lab'"
 						}
+						
+						if !missing("`vallab'") lab val `sm_var'`prefix'`j' `vallab'
 
 						loc new_list "`new_list' `sm_var'`prefix'`j'"
 						loc ++new_cnt
@@ -138,6 +142,8 @@ version 17
 
 			noi disp "`sm_var'" _column(25) "`new_cnt'"
 			loc ++nbvarsplit
+			
+			frame drop frm_single
 
 		}
 		
