@@ -1,4 +1,4 @@
-*! version 1.0.0 07may2024
+*! version 1.0.0 02aug2024
 *! Innovations for Poverty Action
 * ipaodkmergerepeats: Reshape & Merge data from ODK style repeat groups
 
@@ -42,7 +42,7 @@ program define ipaodkmergerepeats
 		}
 
 		* save dataset
-		if "`saving'" == "" save "`saving'", `replace'
+		if "`saving'" ~= "" save "`saving'", `replace'
 		
 	}
     
