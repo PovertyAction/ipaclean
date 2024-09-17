@@ -30,13 +30,13 @@
 
 
 	cd "C:\Users\IBaako\Documents\projects\ipaclean\ipaodkmergerepeats/data2"
-	do "import_nested_repeat_data.do"
+	*do "import_nested_repeat_data.do"
 	
 * Include program
-
-	include "../ipaodkmergerepeats.ado"
+	net install ipaclean, all replace from("C:\Users\IBaako\Documents\github\ipaclean")
+	*include "../ipaodkmergerepeats.ado"
 	
 	
 * Run program
-	
+	* set trace on
 	ipaodkmergerepeats using "C:\Users\IBaako\Documents\projects\ipaclean\ipaodkmergerepeats/data2/Nested Repeat Data"
