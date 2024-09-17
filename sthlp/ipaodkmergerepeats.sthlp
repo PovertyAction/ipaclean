@@ -60,7 +60,7 @@ extension, {cmd:.dta} is assumed.
 current working directory is assumed. 
 
 {phang}
-{opt folder()} Overwrite existing file. 
+{opt replace} Overwrite existing file. 
 
 {marker examples}{...}
 {title:Examples}

@@ -14,7 +14,7 @@ version 17
 		NOLabel
 		NONOTEs
 		safely
-		report
+		APPENDReport
 		replace
 		GENerate(name)
 		]
@@ -36,14 +36,14 @@ version 17
 		}
 		
 		* check that safely and report are not used together
-		if !missing("`report'") & !missing("`safely'") {
-				disp as err "options report and safely are mutually exclusive"
+		if !missing("`appendreport'") & !missing("`safely'") {
+				disp as err "options appendreport and safely are mutually exclusive"
 				ex 198
 		}	
 		
-		* check outfile is specified if report or safely is specified
-		if !missing("`outfile'") & missing("`report'`safely'") {
-			disp as err "must specify option outfile() with report or safely"
+		* check outfile is specified if appendreport or safely is specified
+		if !missing("`outfile'") & missing("`appendreport'`safely'") {
+			disp as err "must specify option outfile() with appendreport or safely"
 			ex 198
 		}
 		
@@ -219,8 +219,8 @@ version 17
 			loc var_cnt = `c(N)'
 		}
 		
-		* Display text report if outfile is not specified
-		if !missing("`report'") & missing("`safely'") {
+		* Display text appendreport if outfile is not specified
+		if !missing("`appendreport'") & missing("`safely'") {
 			if `appends_cnt' > 0 {
 				noi disp
 				noi disp "IPAAPPEND report: Dataset cannot be appended normally."
@@ -236,7 +236,7 @@ version 17
 				ex 
 			}
 		}
-		if !missing("`report'") & !missing("`outfile'") {
+		if !missing("`appendreport'") & !missing("`outfile'") {
 			
 			* Output append report 
 			frame copy frm_data_info frm_data_info_exp
@@ -286,7 +286,7 @@ version 17
 			}
 		}
 	
-		if missing("`report'") {
+		if missing("`appendreport'") {
 			* Append datasets run append
 
 			use "`tmf_m_data'", clear

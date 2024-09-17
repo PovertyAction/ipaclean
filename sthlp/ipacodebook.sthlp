@@ -59,7 +59,7 @@
 
 {phang}
 {cmd:statistics(}{it:statname} [{it:...}]{cmd:)}
-   specifies the statistics to be displayed; If the option {cmd:statvariables()) is 
+   specifies the statistics to be displayed; If the option {cmd:statvariables()} is 
    specified, then the default is equivalent to specifying {cmd:statistics(mean)}, 
    otherwise the default is no statistics. Multiple statistics may be specified
    and are separated by white space, such as {cmd:statistics(mean sd)}.

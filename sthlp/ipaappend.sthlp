@@ -142,19 +142,17 @@ uniqueness to the append report
 {phang2}{cmd:. save foreign}{p_end}
 
 {pstd}Appending domestic car data to the end of the foreign car data using the 
-native append command will result in an error as price is "string" in master and 
-"numeric" in appending dataset.{p_end} 
+native append command will result in an error as price is "string" in master and "numeric" in appending dataset.{p_end} 
 
-{phang2}{cmd:. append using domestic{p_end}
+{phang2}{cmd:. append using domestic}{p_end}
 
 {pstd} Using the force option will result in losing data 
-from the appending dataset. Using {cmd:ipaappend's} safely option can append the 
-datasets without lose of data{p_end}
+from the appending dataset. Using {cmd:ipaappend's} safely option can append the datasets without lose of data{p_end}
 
-{phang2}{cmd:. append using domestic, force{p_end}
+{phang2}{cmd:. append using domestic, force}{p_end}
 
 {pstd}Appending domestic car data to the end of the foreign car data using the 
-ipaappend command. 
+ipaappend command.{p_end} 
 
 {phang2}{cmd:. use foreign, clear}{p_end}
 {phang2}{cmd:. ipaappend using domestic, outfile("append_report.xlsx") safely replace}{p_end}

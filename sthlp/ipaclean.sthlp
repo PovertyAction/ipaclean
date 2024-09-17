@@ -87,6 +87,6 @@ Display version information for commands in the ipaclean package
 {pstd}Ishmail Azindoo Baako{p_end}
 {pstd}Dalyo Sid Ousmane Ourba{p_end}
 {pstd}Arsène Baowendmanegré Zongo{p_end}
-{pstd}{it:Last updated: 16 May 2024 (v1.0.0 Beta 2)}{p_end}
+{pstd}{it:Last updated: 17 September 2024 (v1.0.0)}{p_end}
 
 Help: {help ipacheck:ipacheck} {help ipahelper:ipahelper}

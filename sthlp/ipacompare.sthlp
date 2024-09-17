@@ -57,7 +57,7 @@ as well as highlighting the completeness of the data across different data colle
 {cmd:consent(}{help varname}, {help numlist}{cmd:)} specifies the survey consent variable and values. When speicified, the report will include information about consent for each respondent as well as consent rates per survey round. {cmd:varname} specifies the name of the variable that indicates consent eg {cmd:consent_yn} and numlist specifies values that indicate valid consent eg. {cmd:1} or {cmd:2 3}. 
 
 {phang}
-{opth masterdata(filename)} specifies the master dataset that contains the details of each respondent to be interviewed. This dataset must contain 1 observation for each targeted respondent and must be unique by the variable specified in {cmd:id())}. If {cmd:masterdata()} is not specified, {cmd:ipacompare} will create a master dataset by making a list of all IDs from all survey rounds.  
+{opth masterdata(filename)} specifies the master dataset that contains the details of each respondent to be interviewed. This dataset must contain 1 observation for each targeted respondent and must be unique by the variable specified in {cmd:id()}. If {cmd:masterdata()} is not specified, {cmd:ipacompare} will create a master dataset by making a list of all IDs from all survey rounds.  
 
 {phang}
 {opth keepmaster(varlist)} specifies additional variables to be kept from the master dataset. By default, only the {cmd:id()} is kept. 
@@ -71,10 +71,10 @@ as well as highlighting the completeness of the data across different data colle
 {phang2}{cmd:. unzipfile "https://raw.github.com/PovertyAction/ipaclean/main/data/ipacompare_test_data.zip"}{p_end}
 
 {pstd}Compare data from 4 rounds of data collection to a master dataset{p_end}
-{phang2}{cmd:. ipacompare, id(hhid) date(submissiondate) keepmaster(sex) consent(consent, 1) outcome(complete, 1 2) m("Deworming Project - Master Dataset") s1("Deworming Project - Census", "Census") s2("Deworming Project - Baseline", "Baseline") s3("Deworming Project - Midline", "Midline") s4("Deworming Project - Endline", "Endline") outfile(compare.xlsx) replace}{p_end}
+{phang2}. ipacompare, id(hhid) date(submissiondate) keepmaster(sex) consent(consent, 1) outcome(complete, 1 2) m("Deworming Project - Master Dataset") s1("Deworming Project - Census", "Census") s2("Deworming Project - Baseline", "Baseline") s3("Deworming Project - Midline", "Midline") s4("Deworming Project - Endline", "Endline") outfile(compare.xlsx) replace{p_end}
 
 {pstd}Compare data from 4 rounds of data collection without a master dataset{p_end}
-{phang2}{cmd:. ipacompare, id(hhid) date(submissiondate) consent(consent, 1) outcome(complete, 1 2) s1("Deworming Project - Census", "Census") s2("Deworming Project - Baseline", "Baseline") s3("Deworming Project - Midline", "Midline") s4("Deworming Project - Endline", "Endline") outfile(compare.xlsx) replace}{p_end}
+{phang2}. ipacompare, id(hhid) date(submissiondate) consent(consent, 1) outcome(complete, 1 2) s1("Deworming Project - Census", "Census") s2("Deworming Project - Baseline", "Baseline") s3("Deworming Project - Midline", "Midline") s4("Deworming Project - Endline", "Endline") outfile(compare.xlsx) replace{p_end}
 
 {text}
 {title:Author}
