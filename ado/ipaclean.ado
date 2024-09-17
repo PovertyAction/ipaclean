@@ -1,4 +1,4 @@
-*! version 1.0.0 08aug2024
+*! version 1.0.0 17sep2024
 *! Innovations for Poverty Action
 * ipaclean: IPA Stata Package for Data Cleaning
 
@@ -23,7 +23,12 @@ program ipaclean, rclass
 		
 		loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipaclean"
 
-		noi ipaclean_`subcmd', branch(`branch') url(`url') id(`id') outfile(`outfile')
+		if "`subcmd'" == "check" {
+			noi ipaclean_`subcmd', branch(`branch') url(`url') id(`id') outfile(`outfile')
+		}
+		else {
+			noi ipaclean_`subcmd', branch(`branch') url(`url') `force'
+		}
 		
 	}
 end
