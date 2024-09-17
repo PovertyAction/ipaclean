@@ -8,9 +8,8 @@
 {viewerjumpto "Examples" "ipaodkmergerepeats##examples"}{...}
 
 {p2colset 1 15 17 2}{...}
-{p2col:{bf:ipaappend} {hline 2}}Reshape and Merge ODK/SurveyCTO repeat groups{p_end}
+{p2col:{bf:ipaodkmergerepeats} {hline 2}}Reshape and Merge ODK/SurveyCTO repeat groups{p_end}
 {p2colreset}{...}
-
 
 {marker syntax}{...}
 {title:Syntax}
@@ -56,8 +55,7 @@ extension, {cmd:.dta} is assumed.
 {opt savings()} saves a copy of the merged dataset to disk. Default is to only leave dataset in memory
 
 {phang}
-{opt folder()} specifies the folder contain the repeat group datasets. If not specified, then the 
-current working directory is assumed. 
+{opt folder()} specifies the folder contain the repeat group datasets. If not specified, then the directory of the file specified in using is assumed. 
 
 {phang}
 {opt replace} Overwrite existing file. 

@@ -1,4 +1,4 @@
-*! version 2.0.0 15july2024
+*! version 2.0.0 17sep2024
 *! Innovations for Poverty Action 
 * ipacodebook: export and/or apply excel codebook
 
@@ -224,8 +224,13 @@ program define ipacodebook, rclass
 			loc missing_cnt `r(N)'
 			
 			* count number of unique nonmissing values for var
-			qui tab `var'
-			loc unique_cnt `r(r)'
+			* using tab to gen and error when values are too many
+			
+			preserve
+			bys `var': gen _index_n_cnt = _n
+			count if _index_n_cnt == 1 & !missing(`var')
+			loc unique_cnt `r(N)'
+			restore
 			
 			loc label 	"`:var lab `var''"
 			if "`note'" ~= ""  loc notelab "``var'[note`note_num']'"
