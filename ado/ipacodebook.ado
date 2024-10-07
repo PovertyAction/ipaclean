@@ -53,7 +53,6 @@ program define ipacodebook, rclass
 			
 		}
 
-
 		* if the apply option is indicated
 		if "`applyusing'" ~= "" {
 			
@@ -160,7 +159,7 @@ program define ipacodebook, rclass
 		}
 
 		save "`tmf_data'", replace
-
+		
 		* ----------------------------------------------------------------------
 		* Create additional statistics for numeric variables
 		* ----------------------------------------------------------------------
@@ -215,10 +214,10 @@ program define ipacodebook, rclass
 
 		if "`varlist'" ~= "" unab vars: `varlist'
 		else unab vars: _all
-
+		
 		* create & post stats for each variable
 		foreach var of varlist `vars' {
-
+			
 			* count missing values for var
 			qui count if missing(`var')
 			loc missing_cnt `r(N)'
