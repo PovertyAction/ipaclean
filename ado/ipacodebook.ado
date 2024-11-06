@@ -388,8 +388,8 @@ program define ipacodebook, rclass
 			frame frm_choice_list {
 				if "`template'" ~= "" gen new_label = "", after(label)
 				export excel using "`using'", first(var) sheet("value labels")
-				mata: colwidths("`using'", "value labels")
-				mata: addlines("`using'", "value labels", (1, `=_N' + 1), "medium")
+				ipacolwidth using "`using'", sheet("value labels")
+				iparowline using "`using'", sheet("value labels") rows(1 `=_N+1') style("medium")
 			}
 			
 		}
