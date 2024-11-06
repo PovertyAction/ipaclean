@@ -16,6 +16,7 @@ The IPA Data Cleaning Package (ipaclean) is a Stata package that contains IPA's 
 ```Stata
 * ipaclean may be installed directly from GitHub
 net install ipaclean, all replace from("https://raw.githubusercontent.com/PovertyAction/ipaclean/main")
+net install ipahelper, all replace from("https://raw.githubusercontent.com/PovertyAction/ipahelper/main")
 
 ipaclean update
 
